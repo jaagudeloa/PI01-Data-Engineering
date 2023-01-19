@@ -1,37 +1,46 @@
-<p align=center><img src=https://d31uz8lwfmyn8g.cloudfront.net/Assets/logo-henry-white-lg.png><p>
+# <h1 align=center>**PROYECTO INDIVIDUAL Nº1**
 
-# <h1 align=center> **PROYECTO INDIVIDUAL Nº1** </h1>
+# <h1 align=center>**`Data Engineering`**</h1>  
 
-# <h1 align=center>**`Data Engineering`**</h1>
+Éste trabajo hace parte de la formación práctica del bootcamp de Data Science de la academia Henry y corresponde a mí primer proyecto individual. 
 
-<p align="center">
-<img src="https://files.realpython.com/media/What-is-Data-Engineering_Watermarked.607e761a3c0e.jpg"  height=300>
-</p>
+# <h2> **Objetivos**</h1>
+- Realizar una extracción de datos desde diversas fuentes. 
+- Aplicar ciertas transformaciones y/o ejecutar la limpieza de datos
+- Poner a disposición los datos mediante la elaboración y ejecución de una API 
 
-¡Bienvenidos al primer proyecto individual de la etapa de labs! En esta ocasión, deberán hacer un trabajo situándose en el rol de un ***Data Engineer***.  
+***
+## **Tareas a Ejecutar**
 
-<hr>  
+1.ETL (Extraction, Transform, Load). Cómo paso final se creó una tabla relacionando y unificando el conjunto de datos
 
-## **Descripción del problema (Contexto y rol a desarrollar)**
+2.Crear una API con FastAPI 
 
-## Contexto
+3.Realizar las consultas
 
-`Application Programming Interface`  es una interfaz que permite que dos aplicaciones se comuniquen entre sí, independientemente de la infraestructura subyacente. Son herramientas muy versátiles que permiten por ejemplo, crear pipelines facilitando mover y brindar acceso simple a los datos que se quieran disponibilizar a través de los diferentes endpoints, o puntos de salida de la API.
+4.Realizar un deployment en Deta
 
-Hoy en día contamos con **FastAPI**, un web framework moderno y de alto rendimiento para construir APIs con Python.
-<p align=center>
-<img src = 'https://i.ibb.co/9t3dD7D/blog-zenvia-imagens-3.png' height=250><p>
+***
+## **Tecnologías utilizadas**
+El uso de las siguientes tecnologías permitirá llevar a cabo las tareas propuestas
 
-## Rol a desarrollar
+- Python:   
+    - Pandas
+    - pymysql
+- FastAPI
+- Uvicorn
+- Deta
 
-Como parte del equipo de data de una empresa, el área de análisis de datos le solicita al área de Data Engineering (usted) ciertos requerimientos para el óptimo desarrollo de sus actividades. Usted deberá elaborar las *transformaciones* requeridas y disponibilizar los datos mediante la *elaboración y ejecución de una API*.
+***
+## **Archivos del repositorio**
+- **`Datasets`**: (./Datasets/) En esta carpeta se encuentran los archivos de los datos fuente utilizados para realizar el proyecto, y también el archivo que se creó con los resultados del ETL.
+Las plataformas a las cuáles pertenecen los datos son: amazon, netflix,disney,hulu 
+- **`ETL`**: (./ETL.py/) Script para realizar el ETL de los datos.
+- **`main.py`**: (/main.py) Script para instanciar la API, con las funciones de consultas.
 
-
-
-## **Propuesta de trabajo (requerimientos de aprobación)**
-
-**`Transformaciones`**:  El analista de datos requiere estas, ***y solo estas***, transformaciones para sus datos:
-
+***
+## `1.ETL(Extraction, Transform, Load)`
+Con el archivo ETL.py se realizaron las tareas de extracción de datos desde archivos tipo(csv), convirtiéndolos a distintos dataframes. Sobre los Dataframes y haciendo uso de pandas se realizaron las tareas de transformación encomendadas que se resumían en: 
 
 + Generar campo **`id`**: Cada id se compondrá de la primera letra del nombre de la plataforma, seguido del show_id ya presente en los datasets (ejemplo para títulos de Amazon = **`as123`**)
 
@@ -43,77 +52,95 @@ Como parte del equipo de data de una empresa, el área de análisis de datos le 
 
 + El campo ***duration*** debe convertirse en dos campos: **`duration_int`** y **`duration_type`**. El primero será un integer y el segundo un string indicando la unidad de medición de duración: min (minutos) o season (temporadas)
 
-<br/>
+Como paso final se unificaron las tablas, generando una única tabla que posteriormente se utilizará en la ejecución de las consultas
 
-**`Desarrollo API`**:  Para disponibilizar los datos la empresa usa el framework ***FastAPI***. El analista de datos requiere consultar:
+***
+## `2.Crear una API con FastAPI`
+Para la creación de la API, se utilizó el archivo main.py, en donde se configuraron las funciones para la realización de consultas. El script instancia la API que carga el CSV ya transformado para realizar dichas consultas, y devuelve los resultados esperados.
+***
+## `3. Generación de Consultas`
+Se decidió como primer paso, ejecutar las consultas de manera local para verificar su buen funcionamiento. Para ello se usó la herramienta uvicorn. Para la implementación de las consultas se uso la biblioteca python **pandasql** :
 
-+ Cantidad de veces que aparece una keyword en el título de peliculas/series, por plataforma
+A continuación se ejemplifica una busqueda con el uso de pandasql:
 
-+ Cantidad de películas por plataforma con un puntaje mayor a XX en determinado año
+```
+def get_word_count(plataforma:str,keyword:str):
+dic_plataforma ={"netflix":"n","amazon":"a","disney":"d","hulu":"h"}
+id_value = dic_plataforma[plataforma]+"%" keyword="%"+keyword+"%"
+consulta1 = f"SELECT COUNT(title) FROM db WHERE title LIKE '{keyword}' AND id LIKE '{id_value}' "
+return (plataforma,sqldf(consulta1).to_string(index=False,header=False))
+```
 
-+ La segunda película con mayor score para una plataforma determinada, según el orden alfabético de los títulos.
 
-+ Película que más duró según año, plataforma y tipo de duración
+Para este proyecto, se solicitaban las siguientes consultas:
 
-+ Cantidad de series y películas por rating
-<br/>
++ ### `Cantidad de veces que aparece una keyword en el título de películas/series, por plataforma`  
+
+    El request debe ser:
+    
+    ```
+    /get_word_count/plataforma,keyword
+    ```
+    Un ejemplo de ello es:
+    ```
+    /get_word_count/netflix,love
+    ```
 
 
-**`Deployment`**: La empresa suele usar [Deta](https://www.deta.sh/?ref=fastapi) (no necesita dockerizacion) para realizar el deploy de sus aplicaciones. Sin embargo, también puede usar [Railway](https://railway.app/) y [Render](https://render.com/docs/free#free-web-services) (necesitan dockerizacion).
-<br/>
-
-<br/>
-
-**`Video`**: El Tech Lead que le delegó esta tarea quiere darle un feedback sobre el trabajo realizado. Para esto, le pide que sintetice en un video de ***5 minutos*** su trabajo resaltando cómo ayuda el mismo a los analistas de datos.
-
-<sub> **Spoiler: Para lograr esto DEBE mostrarle al TL las consultas requeridas en funcionamiento desde la API**. <sub/>
-
-<br/>
-
-## **Criterios de evaluación**
-
-**`Código`**: Prolijidad de código, uso de clases y/o funciones, en caso de ser necesario, código comentado. 
-
-**`Repositorio`**: Nombres de archivo adecuados, uso de carpetas para ordenar los archivos, README.md presentando el proyecto y el trabajo realizado
-
-**`Cumplimiento`** de los requerimientos de aprobación indicados en el apartado `Propuesta de trabajo`
-
-NOTA: Recuerde entregar el link de acceso al video. Puede alojarse en YouTube, Drive o cualquier plataforma de almacenamiento. **Verificar que sea de acceso público**.
-
-<br/>
-
-## **Fuente de datos**
-
-+ Podrán encontrar los archivos con datos en la carpeta Datasets, en este mismo repositorio.<sup>*</sup>
-<br/>
-
-## **Material de apoyo**
-
-Imagen Docker con Uvicorn/Guinicorn para aplicaciones web de alta performance:
-
-+ https://hub.docker.com/r/tiangolo/uvicorn-gunicorn-fastapi/ 
-
-+ https://github.com/tiangolo/uvicorn-gunicorn-fastapi-docker
-
-FAST API Documentation:
-
-+ https://fastapi.tiangolo.com/tutorial/
-
-"Prolijidad" del codigo:
-
-+ https://pandas.pydata.org/docs/development/contributing_docstring.html
-
-<br/>
-
-## **Deadlines importantes**
-
-+ Apertura de formularios de entrega de proyectos: **Miercoles 18, 15:00hs gmt -3**
-
-+ Cierre de formularios de entrega de proyectos: **Viernes 20, 12:00hs gmt-3**
++ ### `Cantidad de películas por plataforma con un puntaje mayor a XX en determinado año`   
   
-+ Demo por parte del estudiante: **Viernes 20, 16:00hs gmt-3** 
+    El request debe ser:
+    ```
+    /get_score_count/plataforma,puntaje,año
+    ```
+    Un ejemplo de ello es:
+    ```
+    /get_score_count/netflix,85,2010
+    ``` 
+  
++ ### `La segunda película con mayor score para una plataforma determinada según el orden alfabético de los títulos` 
+  
+    El request debe ser:
+    ```
+    /get_second_score/plataforma
+    ```
+    Un ejemplo de ello es:
+    ```
+    /get_second_score/amazon
+    ```    
 
-(Se escogera entre l@s estudiantes aquel que represente de **forma global** todos los criterios de evaluacion esperados, para que sirva de inspiracion a sus compañer@s)
++ ### `Película que más duró según año, plataforma y tipo de duración` 
 
-## `Disclaimer`
-De parte del equipo de Henry se aclara y remarca que el fin de los proyectos propuestos es exclusivamente pedagógico, con el objetivo de realizar simular un entorno laboral, en el cual se trabajan diversas temáticas ajustadas a la realidad. No reflejan necesariamente la filosofía y valores de la organización. Además, Henry no alienta ni tampoco recomienda a los alumnos y/o cualquier persona leyendo los repositorios (y entregas de proyectos) que tomen acciones con base a los datos que pudieran o no haber recabado. Toda la información expuesta y resultados obtenidos en los proyectos nunca deben ser tomados en cuenta para la toma real de decisiones (especialmente en la temática de finanzas, salud, política, etc.).
+    El request debe ser:
+    ```
+    /get_longest/plataforma,tipo de duración,año
+    ```
+    Un ejemplo de ello es:
+    ```
+    /get_longest/netflix,min,2016
+    ```    
++ ### `Cantidad de series y películas por rating`
+
+    El request debe ser:
+    ```
+    /get_rating_count/rating
+    ```
+    Un ejemplo de ello es:
+    ```
+    /get_rating_count/18+
+    ```    
+***
+## `4.Realizar un deployment en Deta`
+Para ejecutar el (deployment) de la aplicación se hizo uso de la plataforma DETA (que no necesita dockerización).
+Allí se generó el siguiente Endpoint desde donde se ejecutarán las consultas previstas:
+
+- Endpoint: 
+
+    ## https://xkqak4.deta.dev/   
+
+- Ejemplo Consulta : 
+   
+   ## https://xkqak4.deta.dev/get_word_count/netflix,love
+
+***
+Con los pasos anteriormente ejecutados se logró con éxito cumplir con los requerimientos del ejercicio propuesto
